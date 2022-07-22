@@ -1,10 +1,11 @@
 package igor.gerenciadorclientes.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +20,8 @@ public class ClienteService {
 	@Autowired
 	private ClienteRepository clienteRepository;
 	
-	public List<Cliente> findAll(){
-		return clienteRepository.findByStatus(Status.AVAILABLE);
+	public Page<Cliente> findAll(Pageable pageable){
+		return clienteRepository.findByStatus(Status.AVAILABLE, pageable);
 	}
 	
 	public Cliente findByIdOrThrowBadRequestException(Long id) {
@@ -51,23 +52,25 @@ public class ClienteService {
 		return clienteRepository.save(cliente);
 	}
 	
-	public Cliente update(Cliente cliente) throws NotFoundException {
-		Cliente savedCliente = findByIdOrThrowBadRequestException(cliente.getId());
+	public Cliente update(Cliente cliente, Long id) throws NotFoundException {
+		Cliente savedCliente = findByIdOrThrowBadRequestException(id);
 		if(savedCliente.isAvailable()) {
-			return clienteRepository.save(savedCliente);
+			return clienteRepository.save(cliente);
 		}else {
 			throw new NotFoundException();
 		}
 	}
 	
-	public void inativar(Cliente cliente) {
-		cliente.setStatus(Status.NOT_AVAILABLE);
-		clienteRepository.save(cliente);
-	}
 	
-	public void ativar(Cliente cliente) {
-		cliente.setStatus(Status.AVAILABLE);
-		clienteRepository.save(cliente);
+	public void status(Long id) {
+		Cliente cliente = findByIdOrThrowBadRequestException(id);
+		if(cliente.isAvailable()) {
+			cliente.setStatus(Status.NOT_AVAILABLE);
+			clienteRepository.save(cliente);
+		}else {
+			cliente.setStatus(Status.AVAILABLE);
+			clienteRepository.save(cliente);
+		}
 	}
 	
 	

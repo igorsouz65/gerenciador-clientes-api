@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Cliente {
 	
@@ -36,6 +38,7 @@ public class Cliente {
 	private String uf;
 	private String telefone;
 	private String email;
+	
 	
 	@Enumerated(EnumType.STRING)
 	private Status status;

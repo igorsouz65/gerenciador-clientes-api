@@ -1,10 +1,12 @@
 package igor.gerenciadorclientes.controller;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import igor.gerenciadorclientes.model.Cliente;
 import igor.gerenciadorclientes.service.ClienteService;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("v1")
 public class ClienteController {
@@ -24,8 +27,8 @@ public class ClienteController {
 	private ClienteService clienteService;
 	
 	@GetMapping(path = "/clientes")
-	public List<Cliente> listAll(){
-		return clienteService.findAll();
+	public Page<Cliente> listAll(Pageable pageable){
+		return clienteService.findAll(pageable);
 	}
 	
 	@GetMapping("/inativos/{id}")
@@ -43,25 +46,22 @@ public class ClienteController {
 		return clienteService.findByCpfCnpj(cpfCnpj);
 	}
 	
-	@PostMapping("/cadastrarClientes")
+	@PostMapping("/clientes")
 	public Cliente save(@RequestBody Cliente cliente) {
-		return save(cliente);
+		return clienteService.save(cliente);
 	}
 	
-	@PutMapping("/atualizarClientes")
-	public Cliente update(@RequestBody Cliente cliente) throws NotFoundException {
-		return clienteService.update(cliente);
+	@PutMapping("/atualizarClientes/{id}")
+	public Cliente update(@RequestBody Cliente cliente, @PathVariable Long id) throws NotFoundException {
+		return clienteService.update(cliente, id);
 	}
 	
-	@PutMapping("/inativar-cliente")
-	public void inativar(@RequestBody Cliente cliente) {
-		clienteService.inativar(cliente);
+	
+	@PutMapping("/statusCliente/{id}")
+	public void ativar( @PathVariable Long id) {
+		clienteService.status(id);
 	}
 	
-	@PutMapping("/ativar-cliente")
-	public void ativar(@RequestBody Cliente cliente) {
-		clienteService.ativar(cliente);
-	}
 	
 	
 	
